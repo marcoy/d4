@@ -24,13 +24,15 @@
     :builds {
       :dev
       {:source-paths ["src/cljs"]
-       :compiler {:output-to "resources/public/js/main.dev.js"
-                  :optimizations :whitespace
+       :compiler {:output-to "resources/public/js/d4/main.dev.js"
+                  :output-dir "resources/public/js"
+                  :optimizations :none
+                  :source-map true
                   :pretty-print true}}
 
       :prod
       {:source-paths ["src/cljs"]
-       :compiler {:output-to "resources/public/js/main.js"
+       :compiler {:output-to "resources/public/js/d4/main.js"
                   :optimizations :advanced
                   :pretty-print false}}
     }}
