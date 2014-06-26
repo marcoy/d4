@@ -20,6 +20,21 @@
                  [org.clojure/tools.namespace "0.2.4"]
                  [http-kit "2.1.16"]]
 
+  :cljsbuild {
+    :builds {
+      :dev
+      {:source-paths ["src/cljs"]
+       :compiler {:output-to "resources/public/js/main.dev.js"
+                  :optimizations :whitespace
+                  :pretty-print true}}
+
+      :prod
+      {:source-paths ["src/cljs"]
+       :compiler {:output-to "resources/public/js/main.js"
+                  :optimizations :advanced
+                  :pretty-print false}}
+    }}
+
   :profiles {:dev
              {}}
 
