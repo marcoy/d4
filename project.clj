@@ -7,37 +7,57 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :plugins [[lein-cljsbuild "1.0.3"]]
+  :plugins [[lein-cljsbuild "1.0.3"]
+            [lein-ring "0.8.11"]]
 
   :repl-options {
                  :init-ns d4.repl
                 }
 
-  :source-paths ["src/clj"]
+  :source-paths ["src/clj" "src/cljs"]
+
+  :test-paths ["test/clj"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2234"]
                  [org.clojure/tools.namespace "0.2.4"]
-                 [http-kit "2.1.16"]]
+                 [http-kit "2.1.18"]]
 
-  :cljsbuild {
-    :builds {
-      :dev
-      {:source-paths ["src/cljs"]
-       :compiler {:output-to "resources/public/js/d4/main.dev.js"
-                  :output-dir "resources/public/js"
-                  :optimizations :none
-                  :source-map true
-                  :pretty-print true}}
+  :profiles {
+    :dev
+    {:plugins [[com.cemerick/austin "0.1.4"]]
 
-      :prod
-      {:source-paths ["src/cljs"]
-       :compiler {:output-to "resources/public/js/d4/main.js"
-                  :optimizations :advanced
-                  :pretty-print false}}
-    }}
+     :cljsbuild {
+       :builds {
+         :dev
+         {:source-paths ["src/cljs"]
+          :compiler {:output-to "resources/public/js/d4/main.dev.js"
+                     :output-dir "resources/public/js/d4"
+                     :source-map "resources/public/js/d4/main.dev.js.map"
+                     ; :source-map-path ""
+                     :optimizations :whitespace
+                     :pretty-print true}}
 
-  :profiles {:dev
-             {}}
+         ; :dev-none
+         ; {:source-paths ["src/cljs"]
+         ;  :compiler {:output-to "resources/public/js/d4/main.dev-none.js"
+         ;             :output-dir "resources/public/js/d4"
+         ;             :source-map "resources/public/js/d4/main.dev-none.js.map"
+         ;             ; :source-map-path ""
+         ;             :optimizations :none
+         ;             :pretty-print true}}
+         }}
+    }
+
+    :prod
+    {:cljsbuild {
+       :builds {
+         :dev
+         {:source-paths ["src/cljs"]
+          :compiler {:output-to "resources/public/js/d4/main.js"
+                     :optimizations :advanced
+                     :pretty-print false}}}}
+    }
+  }
 
   :main d4.core)
