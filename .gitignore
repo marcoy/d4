@@ -10,3 +10,6 @@ pom.xml.asc
 target/
 .repl/
 out/
+resources/public/js/cljs
+resources/public/js/goog/
+resources/public/js/d4/
