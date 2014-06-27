@@ -1,3 +1,16 @@
 (ns d4.repl
-  (:require [org.httpkit.client :as http]
-            [clojure.tools.namespace.repl :refer [refresh]]))
+  (:require [clojure.tools.namespace.repl :refer [refresh]]
+            [net.cgrand.enlive-html :as enlive]
+            [org.httpkit.client :as http]
+            [ring.adapter.jetty :refer [run-jetty]]
+            [server :refer [d4-app]]))
+
+(defn brepl []
+  (cemerick.austin.repls/cljs-repl
+    (reset! cemerick.austin.repls/browser-repl-env
+            (cemerick.austin/repl-env))))
+
+(defn run []
+  (defonce ^:private server
+    (run-jetty #'d4-app {:port 3000 :join? false}))
+  server)

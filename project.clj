@@ -18,10 +18,14 @@
 
   :test-paths ["test/clj"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[compojure "1.1.8"]
+                 [enlive "1.1.5"]
+                 [http-kit "2.1.18"]
+                 [javax.servlet/servlet-api "2.5"]
+                 [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2234"]
                  [org.clojure/tools.namespace "0.2.4"]
-                 [http-kit "2.1.18"]]
+                 [ring "1.3.0"]]
 
   :profiles {
     :dev
@@ -60,4 +64,6 @@
     }
   }
 
-  :main d4.core)
+  :main d4.core
+
+  :ring {:handler server/d4-app})
