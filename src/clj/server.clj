@@ -1,8 +1,9 @@
 (ns server
   (:require [cemerick.austin.repls :refer [browser-connected-repl-js]]
+            [clojure.java.io :as io]
             [compojure.handler :refer [site]]
             [compojure.route :refer [resources]]
-            [net.cgrand.enlive-html :as enlive]
+            [net.cgrand.enlive-html :as enlive :refer [deftemplate]]
             [compojure.core :refer [defroutes GET]]))
 
 (defn repl-page []
@@ -12,9 +13,17 @@
                                               :type "application/javascript"}]
                                     [:script (browser-connected-repl-js)]]]))))
 
+
+(deftemplate repl-temp "public/index.html" []
+  [:body] (enlive/append
+            (enlive/html [:script (browser-connected-repl-js)])))
+
+
 (defroutes d4-routes
-  (GET "/repl" req (repl-page))
+  (GET "/repl-basic" req (repl-page))
+  (GET "/repl" req (repl-temp))
   (resources "/"))
+
 
 (def d4-app
   (-> #'d4-routes
