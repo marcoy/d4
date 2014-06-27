@@ -1,4 +1,15 @@
 (ns d4.core
   (:require [clojure.browser.repl]))
 
-(.log js/console js/d3)
+(defonce d3 js/d3)
+
+(defn log
+  [x]
+  (.log js/console x))
+
+(defn tc
+  "Helper function to test brepl connection"
+  []
+  (js/alert "Connected"))
+
+(log d3)
