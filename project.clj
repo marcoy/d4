@@ -28,6 +28,7 @@
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2234"]
                  [org.clojure/tools.namespace "0.2.4"]
+                 [org.clojure/tools.nrepl "0.2.3"]
                  [ring "1.3.0"]]
 
   :profiles {
@@ -43,6 +44,22 @@
                      :source-map "resources/public/js/d4/main.dev.js.map"
                      ; :source-map-path ""
                      :optimizations :none
+                     :externs ["resources/externs/d3-externs.js"]
+                     :pretty-print true}}}}
+    }
+
+    :pre
+    {:env {:profile :pre}
+
+     :cljsbuild {
+       :builds {
+         :dev
+         {:source-paths ["src/cljs"]
+          :compiler {:output-to "resources/public/js/d4/main.pre.js"
+                     :output-dir "resources/public/js/d4"
+                     :source-map "resources/public/js/d4/main.pre.js.map"
+                     ; :source-map-path ""
+                     :optimizations :whitespace
                      :externs ["resources/externs/d3-externs.js"]
                      :pretty-print true}}}}
     }

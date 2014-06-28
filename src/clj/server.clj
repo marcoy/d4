@@ -36,6 +36,9 @@
                      (scriptsrc "js/d4/main.dev.js")
                      (script "goog.require('d4.core')")
                      (script (browser-connected-repl-js)))
+              :pre (enlive/html
+                     (scriptsrc "js/d4/main.pre.js")
+                     (script (browser-connected-repl-js)))
               :prod (enlive/html (scriptsrc "js/d4/main.js")))))
 
 
