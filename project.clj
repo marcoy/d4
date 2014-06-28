@@ -45,7 +45,8 @@
                      ; :source-map-path ""
                      :optimizations :none
                      :externs ["resources/externs/d3-externs.js"]
-                     :pretty-print true}}}}
+                     :pretty-print true
+                     :print-input-delimiter true}}}}
     }
 
     :pre
@@ -61,7 +62,8 @@
                      ; :source-map-path ""
                      :optimizations :whitespace
                      :externs ["resources/externs/d3-externs.js"]
-                     :pretty-print true}}}}
+                     :pretty-print true
+                     :print-input-delimiter true}}}}
     }
 
     :prod

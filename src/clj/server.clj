@@ -42,8 +42,19 @@
               :prod (enlive/html (scriptsrc "js/d4/main.js")))))
 
 
+(deftemplate getting-started-template "public/index.html" []
+  [:body] (enlive/append
+            (enlive/html
+              (scriptsrc "js/d4/goog/base.js")
+              (scriptsrc "js/d4/main.dev.js")
+              (script "goog.require('d4.core')")
+              (script "goog.require('getting_started.core')")
+              (script (browser-connected-repl-js)))))
+
+
 (defroutes d4-routes
   (GET "/" req (index-template))
+  (GET "/gettingstarted" [] (getting-started-template))
   (resources "/"))
 
 
