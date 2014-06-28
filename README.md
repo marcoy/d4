@@ -18,10 +18,10 @@ browser REPL server and drop you into the browser REPL.
 ```
 d4.repl=> (run)
 d4.repl=> (brepl)
-cljs.user=> ; Inside the browser REPL
+cljs.user=> ; You are now inside the browser REPL
 ```
 
-Finally, navigate to http://localhost:3000/repl using your browser. That's it.
+Finally, navigate to http://localhost:3000 using your browser. That's it.
 
 ## License
 
