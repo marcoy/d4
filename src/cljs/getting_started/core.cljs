@@ -2,9 +2,6 @@
 
 
 (defonce d3 js/d3)
-(defonce margin 50)
-(defonce width  700)
-(defonce height 300)
 
 
 (defn dom-rm
@@ -75,7 +72,10 @@
 ;;
 (defn bus-breakdown-draw
   [data]
-  (let [x-extent (.extent d3 data (fn [d] (.-collision_with_injury d)))
+  (let [margin 50
+        width  700
+        height 300
+        x-extent (.extent d3 data (fn [d] (.-collision_with_injury d)))
         x-scale (-> d3.scale
                     (.linear)
                     (.range #js [margin (- width margin)])
@@ -138,3 +138,95 @@
   "Bus Breakdown, Accident, and Injury"
   []
   (-> d3 (.json "data/bus_perf.json" bus-breakdown-draw)))
+
+
+;;
+;; Graphing Turnstile Traffic
+;;
+(defn turnstile-traffic-draw
+  "Graphing Turnstile Traffic (Draw)"
+  [data]
+  (let [margin 40
+        width  (- 700 margin)
+        height (- 300 margin)
+        count-extent (.extent d3 (.concat (.-times_square data) (.-grand_central data))
+                                    (fn [d] (.-count d)))
+        count-scale (-> d3.scale
+                        (.linear)
+                        (.domain count-extent)
+                        (.range #js [height margin]))
+        count-axis (-> d3.svg
+                       (.axis)
+                       (.scale count-scale)
+                       (.orient "left"))
+        time-extent (.extent d3 (.concat (.-times_square data) (.-grand_central data))
+                                (fn [d] (.-time d)))
+        time-scale (-> (.-time d3)
+                       (.scale)
+                       (.domain time-extent)
+                       (.range #js [margin width]))
+        time-axis (-> d3.svg
+                      (.axis)
+                      (.scale time-scale))
+        line (-> d3.svg
+                 (.line)
+                 (.x (fn [d] (time-scale (.-time d))))
+                 (.y (fn [d] (count-scale (.-count d)))))]
+    (-> js/d3
+        (.select "body")
+        (.append "svg")
+          (.attr "width" (+ width margin))
+          (.attr "height" (+ height margin))
+        (.append "g")
+          (.attr "class"  "chart"))
+    ; times square
+    (-> js/d3
+        (.select "svg")
+        (.selectAll "circle.times_square")
+        (.data (.-times_square data))
+        (.enter)
+        (.append "circle")
+          (.attr "class" "times_square"))
+    ; grand central
+    (-> js/d3
+        (.select "svg")
+        (.selectAll "circle.grand_central")
+        (.data (.-grand_central data))
+        (.enter)
+        (.append "circle")
+          (.attr "class" "grand_central"))
+    ; circle attrs
+    (-> js/d3
+        (.selectAll "circle")
+        (.attr "cx" (fn [d] (time-scale (.-time d))))
+        (.attr "cy" (fn [d] (count-scale (.-count d))))
+        (.attr "r" 3))
+    ; axis
+    (-> js/d3
+        (.select "svg")
+        (.append "g")
+        (.attr "class" "x axis")
+        (.attr "transform" (str "translate(0, " height ")"))
+        (.call time-axis))
+    (-> js/d3
+        (.select "svg")
+        (.append "g")
+        (.attr "class" "y axis")
+        (.attr "transform" (str "translate(" margin ", 0)"))
+        (.call count-axis))
+    ; line
+    (-> js/d3
+        (.select "svg")
+        (.append "path")
+        (.attr "d" (line (.-times_square data)))
+        (.attr "class" "times_square"))
+    (-> js/d3
+        (.select "svg")
+        (.append "path")
+        (.attr "d" (line (.-grand_central data)))
+        (.attr "class" "grand_central"))))
+
+(defn turnstile-traffic
+  "Graphing Turnstile Traffic"
+  []
+  (-> js/d3 (.json "data/turnstile_traffic.json" turnstile-traffic-draw)))
