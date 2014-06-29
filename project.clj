@@ -29,7 +29,8 @@
                  [org.clojure/clojurescript "0.0-2234"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [org.clojure/tools.nrepl "0.2.3"]
-                 [ring "1.3.0"]]
+                 [ring "1.3.0"]
+                 [ring/ring-devel "1.3.0"]]
 
   :profiles {
     :dev
