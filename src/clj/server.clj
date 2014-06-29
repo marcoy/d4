@@ -52,9 +52,20 @@
               (script (browser-connected-repl-js)))))
 
 
+(deftemplate subway-wait-template "public/subway_wait.html" []
+  [:body] (enlive/append
+            (enlive/html
+              (scriptsrc "js/d4/goog/base.js")
+              (scriptsrc "js/d4/main.dev.js")
+              (script "goog.require('d4.core')")
+              (script "goog.require('getting_started.subway_wait')")
+              (script (browser-connected-repl-js)))))
+
+
 (defroutes d4-routes
   (GET "/" req (index-template))
   (GET "/gettingstarted" [] (getting-started-template))
+  (GET "/subwaywait" [] (subway-wait-template))
   (resources "/"))
 
 

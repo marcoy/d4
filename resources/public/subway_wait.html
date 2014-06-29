@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Subway Wait UI</title>
+  <style>
+    .axis path, line {
+      stroke: black;
+      fill: none;
+    }
+    .line {
+      float: left;
+    }
+    .line_container {
+      width: 150px;
+      height: 20px;
+    }
+    path {
+      stroke: black;
+      fill: none;
+    }
+    .key {
+      float: right;
+    }
+    .key_line {
+      font-size: 17px;
+      width: 100%;
+    }
+    .key_square {
+      height: 10px;
+      width: 10px;
+      outline: solid 1px black;
+      float: left;
+      margin: 6px 10px 0px 10px;
+    }
+    #timeseries {
+      float: left;
+    }
+  </style>
+</head>
+<body>
+  <div id="timeseries"></div>
+  <div id="key"></div>
+  <script src="js/dist/d3.v3.min.js" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>
