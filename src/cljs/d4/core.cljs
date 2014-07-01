@@ -4,6 +4,7 @@
 
 (defonce d3 js/d3)
 (defonce nv js/nv)
+(defonce dimple js/dimple)
 (defonce body (-> js/d3 (.select "body")))
 
 
@@ -34,8 +35,8 @@
   []
   (let [svg (-> body
                 (.append "svg")
-                (.attr "width" 600)
-                (.attr "height" 600))]
+                (.attr "width" 300)
+                (.attr "height" 300))]
     (.addGraph nv
                (fn []
                  (let [chart (-> nv.models
@@ -59,10 +60,34 @@
                    chart)))))
 
 
+(defn dimple-example
+  "Dimple line chart. This requires a .tsv file which can be downloaded from
+   https://raw.githubusercontent.com/PMSI-AlignAlytics/dimple/master/data/example_data.tsv"
+  []
+  ; create a container
+  (-> body
+      (.append "div")
+      (.attr "id" "chartContainer"))
+  (let [svg (-> dimple
+                (.newSvg "#chartContainer" 590 400))]
+    (.tsv d3 "/data/example_data.tsv"
+      (fn [d]
+        (let [Chart (.-chart dimple)
+              data (.filterData dimple d "Owner" #js ["Aperture" "Black Mesa"])
+              myChart (Chart. svg data)
+              x (.addCategoryAxis myChart "x" "Month")]
+          (.addOrderRule x "Date")
+          ; (.setBounds myChart 60 30 505 305)
+          (.addMeasureAxis myChart "y" "Unit Sales")
+          (.addSeries myChart nil (-> js/dimple (.-plot) (.-line)))
+          (.draw myChart))))))
+
+
 (defn main
   []
   (log d3)
-  (log nv))
+  (log nv)
+  (log dimple))
 
 
 (set! (.-onload js/window) main)
