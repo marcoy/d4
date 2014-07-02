@@ -62,7 +62,8 @@
                      :source-map "resources/public/js/d4/main.pre.js.map"
                      ; :source-map-path ""
                      :optimizations :whitespace
-                     :externs ["resources/externs/d3-externs.js"]
+                     :externs ["resources/externs/d3-externs.js"
+                               "resources/externs/nv-externs.js"]
                      :pretty-print true
                      :print-input-delimiter true}}}}
     }
@@ -75,7 +76,8 @@
          :prod
          {:source-paths ["src/cljs"]
           :compiler {:output-to "resources/public/js/d4/main.js"
-                     :externs ["resources/externs/d3-externs.js"]
+                     :externs ["resources/externs/d3-externs.js"
+                               "resources/externs/nv-externs.js"]
                      :optimizations :advanced
                      :pretty-print false}}}}
     }
