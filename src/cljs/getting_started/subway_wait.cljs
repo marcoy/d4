@@ -8,7 +8,28 @@
 (def percent-scale nil)
 
 
+(defn add-label
+  [circle d g]
+  (-> d3
+      (.select circle)
+      (.transition)
+      (.attr "r" 9))
+  (-> g
+      (.append "text")
+      (.text (aget (.split (.-line_id d) "_") 1))
+      (.attr "x" (time-scale (.-time d)))
+      (.attr "y" (percent-scale (.-late_percent d)))
+      (.attr "dy" "0.35em")
+      (.attr "dx" "-0.30em")
+      (.attr "class" "linelabel")
+      (.style "opacity" 0)
+      (.style "fill" "white")
+      (.transition)
+        (.style "opacity" 1)))
+
+
 (defn draw-timeseries
+  "Draw timeseries"
   [data id]
   (let [line (-> d3.svg
                  (.line)
@@ -19,10 +40,62 @@
               (.select "#chart")
               (.append "g")
               (.attr "id" (str id "_path"))
-              (.attr "class" (aget (.split id "_") 1)))]
+              (.attr "class" (aget (.split id "_") 1)))
+        enter-duration 1000]
     (-> g
         (.append "path")
-        (.attr "d" (line data)))))
+        (.attr "d" (line data)))
+    ; add circles to represent the data points
+    (-> g
+        (.selectAll "circle")
+        (.data data)
+        (.enter)
+        (.append "circle")
+          (.attr "cx" (fn [d] (time-scale (.-time d))))
+          (.attr "cy" (fn [d] (percent-scale (.-late_percent d))))
+          (.attr "r" 0))
+    (-> g
+        (.selectAll "circle")
+        (.transition)
+        (.delay (fn [d i] (* (/ i (.-length data)) enter-duration)))
+        (.attr "r" 5)
+        (.each "end" (fn [d i] (if (= i (- (.-length data) 1))
+                                 (this-as c (add-label c d g))))))
+    ; interactivity
+    (-> g
+        (.selectAll "circle")
+        (.on "mouseover" (fn [d] (this-as e (-> d3
+                                                (.select e)
+                                                (.transition)
+                                                (.duration 10)
+                                                (.attr "r" 9)))))
+        (.on "mouseout" (fn [d] (this-as e
+                                  (if-not (= i (- (.-length data) 1))
+                                    (-> d3
+                                        (.select e)
+                                        (.transition)
+                                        (.attr "r" 5)))))))
+    (-> g
+        (.selectAll "circle")
+        (.on "mouseover.tooltip" (fn [d]
+                                   (-> d3 (.select (str "text#" (.-line_id d))) (.remove))
+                                   (-> d3
+                                       (.select "#chart")
+                                       (.append "text")
+                                       (.text (str (.-late_percent d) "%"))
+                                       (.attr "x" (+ (time-scale (.-time d)) 10))
+                                       (.attr "y" (- (percent-scale (.-late_percent d)) 10))
+                                       (.attr "id" (.-line_id d))))))
+    (-> g
+        (.selectAll "circle")
+        (.on "mouseout.tooltip" (fn [d]
+                                  (-> d3
+                                      (.select (str "text#" (.-line_id d)))
+                                      (.transition)
+                                      (.duration 500)
+                                      (.style "opacity" 0)
+                                      (.attr "transform" "translate(10,-10)")
+                                      (.remove)))))))
 
 
 (defn get-timeseries-data
@@ -112,3 +185,5 @@
 (defn subway-wait-mean
   []
   (.json d3 "data/subway_wait_mean.json" draw))
+
+(subway-wait-mean)
