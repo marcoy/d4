@@ -69,7 +69,7 @@
                                                 (.transition)
                                                 (.duration 10)
                                                 (.attr "r" 9)))))
-        (.on "mouseout" (fn [d] (this-as e
+        (.on "mouseout" (fn [d i] (this-as e
                                   (if-not (= i (- (.-length data) 1))
                                     (-> d3
                                         (.select e)
