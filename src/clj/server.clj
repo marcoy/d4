@@ -8,15 +8,6 @@
             [compojure.core :refer [defroutes GET]]))
 
 
-(defn repl-page []
-  (enlive/emit*
-    (enlive/html
-      [:html [:body
-              [:script {:src "js/d4/main.dev.js"
-                        :type "application/javascript"}]
-              [:script (browser-connected-repl-js)]]])))
-
-
 (defn script
   [content]
   [:script {:type "application/javascript" :charset "utf-8"}
@@ -26,6 +17,20 @@
 (defn scriptsrc
   [src]
   [:script {:type "application/javascript" :charset "utf-8" :src (str src)}])
+
+
+(defn css
+  [css]
+  [:link {:charset "utf-8" :type "text/css" :rel "stylesheet" :href (str css)}])
+
+
+(defn repl-page []
+  (enlive/emit*
+    (enlive/html
+      [:html [:body
+              [:script {:src "js/d4/main.dev.js"
+                        :type "application/javascript"}]
+              [:script (browser-connected-repl-js)]]])))
 
 
 (deftemplate index-template "public/index.html" []
@@ -42,8 +47,27 @@
               :prod (enlive/html (scriptsrc "js/d4/main.js")))))
 
 
+(defn append
+  [tags element]
+  (let [profile (:profile env)
+        elements (apply enlive/html (get-in tags (map keyword [profile element])))]
+    (enlive/append elements)))
+
+
+(deftemplate parametric-template "public/index.html" [tags]
+  [:head] (append tags :css)
+  [:body] (append tags :js))
+
+
 (defroutes d4-routes
-  (GET "/" req (index-template))
+  (GET "/" req (parametric-template
+                 {:dev {:js [(scriptsrc "js/d4/goog/base.js")
+                             (scriptsrc "/js/d4/main.dev.js")
+                             (script "goog.require('d4.core')")
+                             (script (browser-connected-repl-js))]}
+                  :pre {:js [(scriptsrc "js/d4/main.pre.js")
+                             (script (browser-connected-repl-js))]}
+                  :prod {:js [(scriptsrc "js/d4/main.js")]}}))
   (resources "/"))
 
 
