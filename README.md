@@ -1,6 +1,6 @@
 # d4
 
-An experiment of using d3 with clojure/clojurescript.
+An experiment of using d3, NVD3, dimple, and InfluxDB with clojure/clojurescript.
 
 ## Usage
 
@@ -8,13 +8,13 @@ Running the browser REPL
 
 Build the cljurescript file and then run a REPL.
 ```
-?> lein do cljsbuild once, repl
+$> lein do cljsbuild once, repl
 ```
 
 Inside the REPL, you should be dropped into the `d4.repl` namespace. Within that
 namespace are some helper functions. First, there is the `(run)` function. It
-creates a jetty webserver running at port 3000. Then, the `(brepl)` will start a
-browser REPL server and drop you into the browser REPL.
+creates a http-kit webserver running at port 3000. Then, the `(brepl)` will
+start a browser REPL server and drop you into the browser REPL.
 ```
 d4.repl=> (run)
 d4.repl=> (brepl)
