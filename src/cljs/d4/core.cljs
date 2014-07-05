@@ -1,22 +1,15 @@
 (ns d4.core
-  (:require [clojure.browser.repl]))
+  (:require [clojure.browser.repl]
+            [cljs.core.async :as async]
+            [d4.timeseries.influxdb :as influxdb]
+            [d4.utils :refer [log]])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 
 (defonce d3 js/d3)
 (defonce nv js/nv)
 (defonce dimple js/dimple)
 (defonce body (-> js/d3 (.select "body")))
-
-
-(defn log
-  [x]
-  (.log js/console x))
-
-
-(defn tc
-  "Helper function to test brepl connection"
-  []
-  (js/alert "Connected"))
 
 
 (defn sin-cos
@@ -85,9 +78,11 @@
 
 (defn main
   []
-  (log d3)
-  (log nv)
-  (log dimple))
+  (let [influxdb (influxdb/connect {:database "d4"})]
+    (log d3)
+    (log nv)
+    (log dimple)
+    (go (log (<! (influxdb/list-series influxdb))))))
 
 
 (set! (.-onload js/window) main)

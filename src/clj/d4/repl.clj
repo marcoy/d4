@@ -1,5 +1,6 @@
 (ns d4.repl
-  (:require [clojure.tools.namespace.repl :refer [refresh]]
+  (:require [clojure.core.async :as async]
+            [clojure.tools.namespace.repl :refer [refresh]]
             [net.cgrand.enlive-html :as enlive]
             [org.httpkit.client :as http]
             [org.httpkit.server :refer [run-server]]
