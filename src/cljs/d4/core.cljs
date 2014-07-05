@@ -82,7 +82,7 @@
     (log d3)
     (log nv)
     (log dimple)
-    (go (log (<! (influxdb/list-series influxdb))))))
+    (go (log (<! (influxdb/test-connection influxdb))))))
 
 
 (set! (.-onload js/window) main)
