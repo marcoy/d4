@@ -26,7 +26,7 @@
                  [http-kit "2.1.18"]
                  [javax.servlet/servlet-api "2.5"]
                  [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2234"]
+                 [org.clojure/clojurescript "0.0-2261"]
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [org.clojure/tools.nrepl "0.2.3"]
