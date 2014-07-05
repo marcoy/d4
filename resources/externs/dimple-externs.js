@@ -94,4 +94,4 @@ var dimple = {
     "filterData": function () {},
     "getUniqueValues": function () {},
     "newSvg": function () {}
-}
+};

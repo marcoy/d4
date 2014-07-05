@@ -1,1 +1,1 @@
-var InfluxDB = {}
+var InfluxDB = {};

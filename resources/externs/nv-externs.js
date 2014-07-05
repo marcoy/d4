@@ -24,4 +24,4 @@ var nv = {
         "windowResize": function () {}
     },
     "version": {}
-}
+};
