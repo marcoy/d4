@@ -1,10 +1,12 @@
 (ns d4.core
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
+            [d4.reactive.bacon :as bacon]
             [d4.timeseries.influxdb :as influxdb]
             [d4.utils :refer [log]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
+(enable-console-print!)
 
 (defonce d3 js/d3)
 (defonce nv js/nv)
@@ -76,13 +78,48 @@
           (.draw myChart))))))
 
 
-(defn main
+;;;
+;;;
+;;;
+(defn random-num
+  []
+  (.floor js/Math (+ (* (.random js/Math) 100) 1)))
+
+
+(defn run-generator
   []
   (let [influxdb (influxdb/connect {:database "d4"})]
+    (go-loop [n (random-num)]
+      (influxdb/write-point influxdb "sample" {:value n})
+      (log (str "Wrote: " n))
+      (<! (async/timeout 2000))
+      (recur (random-num)))))
+
+
+(defn test-query []
+  (go
+    (let [influxdb (influxdb/connect {:database "d4"})
+          results (<! (influxdb/query
+                        influxdb
+                        "select * from sample where time > now() - 2h"))
+          cljresults (js->clj results)]
+      )))
+
+
+(defn main
+  []
+  (let [influxdb (influxdb/connect {:database "d4"})
+        stream (influxdb/create-stream influxdb "sample" 5000)]
     (log d3)
     (log nv)
     (log dimple)
-    (go (log (<! (influxdb/test-connection influxdb))))))
+    ; (run-generator)
+    ; (go (log (<! (influxdb/query influxdb "select * from sample where time > 1404704119566u"))))
+    ; (go-loop []
+    ;   (let [values (<! stream)]
+    ;     (print values)
+    ;     ))
+    ))
 
 
 (set! (.-onload js/window) main)

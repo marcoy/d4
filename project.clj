@@ -24,6 +24,7 @@
                  [enlive "1.1.5"]
                  [environ "0.5.0"]
                  [http-kit "2.1.18"]
+                 [jayq "2.5.1"]
                  [javax.servlet/servlet-api "2.5"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2268"]
