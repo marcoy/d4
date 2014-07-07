@@ -57,21 +57,22 @@
             query-chan (query influxdb select-query)
             query-timeout-chan (timeout 5000)
             next-time (format-date (js/Date.))
+            next-time-sec (.floor js.Math (/ (.getTime (js/Date.)) 1000))
             [v ch] (alts! [query-timeout-chan query-chan])]
         (log select-query)
         (condp = ch
           ; timed out; recur
           query-timeout-chan (do (log "time-out-chan")
-                                 (recur (gstring/format "time > '%s'" next-time)))
+                                 (recur (gstring/format "time > %ds" next-time-sec)))
           ; got results; try to write it out
           query-chan (if-not (nil? v)
                        (if (>! c v)
                          (do (<! (timeout poll-interval))
-                             (recur (gstring/format "time > '%s'" next-time)))
+                             (recur (gstring/format "time > %ds" next-time-sec)))
                          (log "Channel closed. Not recurring"))
                        (do (log "Query channel is closed")
                            (<! (timeout poll-interval))
-                           (recur (gstring/format "time > '%s'" next-time)))))))
+                           (recur (gstring/format "time > %ds" next-time-sec)))))))
     c))
 
 

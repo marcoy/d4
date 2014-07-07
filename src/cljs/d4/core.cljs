@@ -1,7 +1,6 @@
 (ns d4.core
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
-            [d4.reactive.bacon :as bacon]
             [d4.timeseries.influxdb :as influxdb]
             [d4.utils :refer [log]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
@@ -113,12 +112,13 @@
     (log d3)
     (log nv)
     (log dimple)
-    ; (run-generator)
+    (run-generator)
     ; (go (log (<! (influxdb/query influxdb "select * from sample where time > 1404704119566u"))))
-    ; (go-loop []
-    ;   (let [values (<! stream)]
-    ;     (print values)
-    ;     ))
+    (go-loop []
+      (let [values (<! stream)]
+        (print values)
+        (log values)
+        (recur)))
     ))
 
 
