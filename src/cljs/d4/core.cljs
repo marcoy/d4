@@ -108,12 +108,11 @@
 (defn main
   []
   (let [influxdb (influxdb/connect {:database "d4"})
-        stream (influxdb/create-stream influxdb "sample" 5000)]
+        stream (influxdb/create-stream influxdb "sample" "30m" 5000)]
     (log d3)
     (log nv)
     (log dimple)
     (run-generator)
-    ; (go (log (<! (influxdb/query influxdb "select * from sample where time > 1404704119566u"))))
     (go-loop []
       (let [values (<! stream)]
         (print values)

@@ -50,29 +50,30 @@
 
 
 (defn create-stream
-  [influxdb series-name poll-interval]
+  [influxdb series-name initial-backfill poll-interval]
   (let [c (chan)]
-    (go-loop [time-cond "time > now() - 5h"]
-      (let [select-query (apply str "select * from " series-name " where " time-cond)
+    (go-loop [time-cond (str "time > now() - " initial-backfill)]
+      (let [select-query (gstring/format "select * from %s where %s order asc"
+                                         series-name time-cond)
             query-chan (query influxdb select-query)
             query-timeout-chan (timeout 5000)
-            next-time (format-date (js/Date.))
-            next-time-sec (.floor js.Math (/ (.getTime (js/Date.)) 1000))
+            next-time-msec (* 1000 (.getTime (js/Date.)))
+            next-time-cond (gstring/format "time > %du" next-time-msec)
             [v ch] (alts! [query-timeout-chan query-chan])]
         (log select-query)
         (condp = ch
           ; timed out; recur
           query-timeout-chan (do (log "time-out-chan")
-                                 (recur (gstring/format "time > %ds" next-time-sec)))
+                                 (recur next-time-cond))
           ; got results; try to write it out
           query-chan (if-not (nil? v)
                        (if (>! c v)
                          (do (<! (timeout poll-interval))
-                             (recur (gstring/format "time > %ds" next-time-sec)))
+                             (recur next-time-cond))
                          (log "Channel closed. Not recurring"))
                        (do (log "Query channel is closed")
                            (<! (timeout poll-interval))
-                           (recur (gstring/format "time > %ds" next-time-sec)))))))
+                           (recur next-time-cond))))))
     c))
 
 
