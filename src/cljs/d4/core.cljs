@@ -3,8 +3,9 @@
             [cljs.core.async :as async]
             [d4.timeseries.influxdb :as influxdb]
             [d4.utils :refer [log]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
+(enable-console-print!)
 
 (defonce d3 js/d3)
 (defonce nv js/nv)
@@ -76,13 +77,38 @@
           (.draw myChart))))))
 
 
-(defn main
+;;;
+;;;
+;;;
+(defn random-num
+  []
+  (.floor js/Math (+ (* (.random js/Math) 100) 1)))
+
+
+(defn run-generator
   []
   (let [influxdb (influxdb/connect {:database "d4"})]
+    (go-loop [n (random-num)]
+      (influxdb/write-point influxdb "sample" {:value n})
+      (log (str "Wrote: " n))
+      (<! (async/timeout 2000))
+      (recur (random-num)))))
+
+
+(defn main
+  []
+  (let [influxdb (influxdb/connect {:database "d4"})
+        stream (influxdb/create-stream influxdb "sample" "30m" 5000)]
     (log d3)
     (log nv)
     (log dimple)
-    (go (log (<! (influxdb/test-connection influxdb))))))
+    (run-generator)
+    (go-loop []
+      (let [values (<! stream)]
+        (print values)
+        (log values)
+        (recur)))
+    ))
 
 
 (set! (.-onload js/window) main)
