@@ -1,7 +1,9 @@
 (ns d4.timeseries.influxdb
-  (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [>! alts! chan timeout]]
-            [d4.utils :refer [log]]))
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require [cljs.core.async :as async :refer [>! alts! chan close! timeout]]
+            [d4.utils :refer [log]]
+            [goog.string :as gstring]
+            [goog.string.format]))
 
 
 (defonce InfluxDB js/InfluxDB)
@@ -18,6 +20,71 @@
                   :database database}))
 
 
+(defn format-date
+  "Format a JS Date() to what InfluxDB recognizes"
+  [jsdate]
+  (let [year (str (.getFullYear jsdate))
+        month (gstring/format "%02d" (+ (.getMonth jsdate) 1))
+        day (gstring/format "%02d" (.getDate jsdate))
+        hours (gstring/format "%02d" (.getHours jsdate))
+        minutes (gstring/format "%02d" (.getMinutes jsdate))
+        seconds (gstring/format "%02d" (.getSeconds jsdate))
+        millis (gstring/format "%03d" (.getMilliseconds jsdate))]
+    (gstring/format "%s-%s-%s %s:%s:%s.%s"
+                    year
+                    month
+                    day
+                    hours
+                    minutes
+                    seconds
+                    millis)))
+
+
+(defn query
+  [influxdb query]
+  (let [c (chan)]
+    (.query influxdb query (fn [data]
+                             (go (>! c data)
+                                 (close! c))))
+    c))
+
+
+(defn create-stream
+  [influxdb series-name initial-backfill poll-interval]
+  (let [c (chan)]
+    (go-loop [time-cond (str "time > now() - " initial-backfill)]
+      (let [select-query (gstring/format "select * from %s where %s order asc"
+                                         series-name time-cond)
+            query-chan (query influxdb select-query)
+            query-timeout-chan (timeout 5000)
+            next-time-msec (* 1000 (.getTime (js/Date.)))
+            next-time-cond (gstring/format "time > %du" next-time-msec)
+            [v ch] (alts! [query-timeout-chan query-chan])]
+        (log select-query)
+        (condp = ch
+          ; timed out; recur
+          query-timeout-chan (do (log "time-out-chan")
+                                 (recur next-time-cond))
+          ; got results; try to write it out
+          query-chan (if-not (nil? v)
+                       (if (>! c v)
+                         (do (<! (timeout poll-interval))
+                             (recur next-time-cond))
+                         (log "Channel closed. Not recurring"))
+                       (do (log "Query channel is closed")
+                           (<! (timeout poll-interval))
+                           (recur next-time-cond))))))
+    c))
+
+
+(defn write-point
+  "Write a row to the specified series"
+  [influxdb series-name value]
+  (.writePoint influxdb
+               series-name
+               (clj->js value)))
+
+
 (defn list-series
   [influxdb]
   (let [c (chan)]
@@ -30,5 +97,5 @@
   "Attempt to connect to influxdb with 5s timeout"
   [influxdb]
   (go (let [list-chan (list-series influxdb)
-            [v ch] (alts! [list-chan (timeout 5000)])]
+            [_ ch] (alts! [list-chan (timeout 5000)])]
         (= ch list-chan))))
