@@ -77,32 +77,16 @@
           (.draw myChart))))))
 
 
-;;;
-;;;
-;;;
-(defn random-num
-  []
-  (.floor js/Math (+ (* (.random js/Math) 100) 1)))
-
-
-(defn run-generator
-  []
-  (let [influxdb (influxdb/connect {:database "d4"})]
-    (go-loop [n (random-num)]
-      (influxdb/write-point influxdb "sample" {:value n})
-      (log (str "Wrote: " n))
-      (<! (async/timeout 2000))
-      (recur (random-num)))))
-
-
 (defn main
   []
   (let [influxdb (influxdb/connect {:database "d4"})
-        stream (influxdb/create-stream influxdb "sample" "30m" 5000)]
+        stream (influxdb/create-stream influxdb "sample"
+                                       :initial-backfill "30m"
+                                       :poll-interval 5000)]
     (log d3)
     (log nv)
     (log dimple)
-    (run-generator)
+    (influxdb/generate-values influxdb "sample")
     (go-loop []
       (let [values (<! stream)]
         (print values)

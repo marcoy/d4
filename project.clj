@@ -7,7 +7,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :plugins [[com.cemerick/austin "0.1.4"]
+  :plugins [[com.cemerick/austin "0.1.5"]
             [lein-cljsbuild "1.0.3"]
             [lein-environ "1.0.0"]
             [lein-ring "0.8.11"]]
@@ -20,7 +20,7 @@
 
   :test-paths ["test/clj"]
 
-  :dependencies [[compojure "1.1.8"]
+  :dependencies [[compojure "1.1.8" :exclusions [ring/ring-core]]
                  [enlive "1.1.5"]
                  [environ "1.0.0"]
                  [http-kit "2.1.18"]

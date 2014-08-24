@@ -1,7 +1,7 @@
 (ns d4.timeseries.influxdb
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [>! alts! chan close! timeout]]
-            [d4.utils :refer [log]]
+            [d4.utils :refer [log random-num]]
             [goog.string :as gstring]
             [goog.string.format]))
 
@@ -50,11 +50,12 @@
 
 
 (defn create-stream
-  [influxdb series-name initial-backfill poll-interval]
+  [influxdb series & {:keys [initial-backfill poll-interval]
+                      :or {initial-backfill "30m" poll-interval 5000}}]
   (let [c (chan)]
     (go-loop [time-cond (str "time > now() - " initial-backfill)]
       (let [select-query (gstring/format "select * from %s where %s order asc"
-                                         series-name time-cond)
+                                         series time-cond)
             query-chan (query influxdb select-query)
             query-timeout-chan (timeout 5000)
             next-time-msec (* 1000 (.getTime (js/Date.)))
@@ -66,7 +67,7 @@
           query-timeout-chan (do (log "time-out-chan")
                                  (recur next-time-cond))
           ; got results; try to write it out
-          query-chan (if-not (nil? v)
+          query-chan (if (some? v)
                        (if (>! c v)
                          (do (<! (timeout poll-interval))
                              (recur next-time-cond))
@@ -94,8 +95,19 @@
 
 
 (defn test-connection
-  "Attempt to connect to influxdb with 5s timeout"
+  "Attempt to connect to influxdb with 3s timeout"
   [influxdb]
   (go (let [list-chan (list-series influxdb)
-            [_ ch] (alts! [list-chan (timeout 5000)])]
+            [_ ch] (alts! [list-chan (timeout 3000)])]
         (= ch list-chan))))
+
+
+(defn generate-values
+  "Generate values every given seconds"
+  [influxdb series & {:keys [interval]
+                      :or {interval 2000}}]
+  (go-loop [n (random-num)]
+    (write-point influxdb series {:value n})
+    (log (str "Wrote: " n))
+    (<! (async/timeout interval))
+    (recur (random-num))))
