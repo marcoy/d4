@@ -2,7 +2,7 @@
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [log]])
+            [d4.utils :refer [log random-num]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
@@ -10,6 +10,7 @@
 (defonce d3 js/d3)
 (defonce nv js/nv)
 (defonce dimple js/dimple)
+(defonce rickshaw js/Rickshaw)
 (defonce body (-> js/d3 (.select "body")))
 
 
@@ -77,22 +78,47 @@
           (.draw myChart))))))
 
 
-(defn main
+(defn influxdb-stream
   []
   (let [influxdb (influxdb/connect {:database "d4"})
         stream (influxdb/create-stream influxdb "sample"
                                        :initial-backfill "30m"
                                        :poll-interval 5000)]
-    (log d3)
-    (log nv)
-    (log dimple)
     (influxdb/generate-values influxdb "sample")
     (go-loop []
       (let [values (<! stream)]
         (print values)
         (log values)
-        (recur)))
-    ))
+        (recur)))))
+
+
+(defn rickshaw-example
+  []
+  (let [chart-element (.getElementById js/document "chart")
+        y-axis-element (.getElementById js/document "y-axis")
+        data (for [x (range 10)] {:x x :y (random-num)})
+        graph-props (clj->js {:element chart-element
+                              :width 580
+                              :length 250
+                              :series [{:color "steelblue"
+                                        :data data}]})
+        graph (rickshaw.Graph. graph-props)
+        x-axis (rickshaw.Graph.Axis.Time. #js {:graph graph})
+        y-axis (rickshaw.Graph.Axis.Y. #js {:graph graph
+                                            :orientation "left"
+                                            :tickFormat (.-formatKMBT rickshaw.Fixtures.Number)
+                                            :element y-axis-element})]
+    (.render graph)))
+
+
+(defn main
+  []
+  (let []
+    (log d3)
+    (log nv)
+    (log dimple)
+    (log rickshaw)
+    (rickshaw-example)))
 
 
 (set! (.-onload js/window) main)
