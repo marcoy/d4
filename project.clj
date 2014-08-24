@@ -9,7 +9,7 @@
 
   :plugins [[com.cemerick/austin "0.1.4"]
             [lein-cljsbuild "1.0.3"]
-            [lein-environ "0.5.0"]
+            [lein-environ "1.0.0"]
             [lein-ring "0.8.11"]]
 
   :repl-options {
@@ -26,8 +26,8 @@
                  [http-kit "2.1.18"]
                  [javax.servlet/servlet-api "2.5"]
                  [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2307"]
-                 [org.clojure/core.async "0.1.303.0-886421-alpha"]
+                 [org.clojure/clojurescript "0.0-2268"]
+                 [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [org.clojure/tools.namespace "0.2.5"]
                  [org.clojure/tools.nrepl "0.2.4"]
                  [ring "1.3.0"]
