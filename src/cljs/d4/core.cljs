@@ -96,7 +96,7 @@
   []
   (let [chart-element (.getElementById js/document "chart")
         y-axis-element (.getElementById js/document "y-axis")
-        data (for [x (range 10)] {:x x :y (random-num)})
+        data (clj->js (for [x (range 3)] {:x x :y (random-num)}))
         graph-props (clj->js {:element chart-element
                               :width 580
                               :length 250
@@ -108,7 +108,14 @@
                                             :orientation "left"
                                             :tickFormat (.-formatKMBT rickshaw.Fixtures.Number)
                                             :element y-axis-element})]
-    (.render graph)))
+    (.render graph)
+    (go-loop [n 3]
+      (.push data (clj->js {:x n :y (random-num)}))
+      (when (> n 20)
+        (.shift data))
+      (.update graph)
+      (<! (async/timeout 2000))
+      (recur (inc n)))))
 
 
 (defn main
