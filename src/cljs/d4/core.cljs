@@ -2,7 +2,8 @@
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [log random-num]])
+            [d4.utils :refer [log random-num]]
+            [jayq.core :refer [$]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
@@ -84,13 +85,32 @@
       (recur (inc n)))))
 
 
+(defn epoch-example
+  []
+  (let [chart-elem ($ :#chart)
+        data (clj->js [{:label "Series 1"
+                        :values [{:time 1370044800 :y 78}
+                                 {:time 1370044801 :y 98}]}])]
+    (doto chart-elem
+      (.width "800px")
+      (.height "350px"))
+    (.epoch chart-elem (clj->js {:type "time.line" :data data
+                                 :queueSize 200 :pixelRatio 1
+                                 :axes ["bottom" "left" "right"]}))))
+
+
 (defn main
   []
   (let []
     (log d3)
     (log dimple)
     (log rickshaw)
-    (rickshaw-example)))
+    (let [graph (epoch-example)]
+      (go-loop []
+        (.push graph (clj->js [{:time (-> (js/Date.) (.getTime))
+                                :y (random-num)}]))
+        (<! (async/timeout 1000))
+        (recur)))))
 
 
 (set! (.-onload js/window) main)

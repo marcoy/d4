@@ -25,6 +25,7 @@
                  [environ "1.0.0"]
                  [http-kit "2.1.18"]
                  [javax.servlet/servlet-api "2.5"]
+                 [jayq "2.5.2"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2268"]
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
