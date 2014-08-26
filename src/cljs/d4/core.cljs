@@ -8,7 +8,6 @@
 (enable-console-print!)
 
 (defonce d3 js/d3)
-; (defonce nv js/nv)
 (defonce dimple js/dimple)
 (defonce rickshaw js/Rickshaw)
 (defonce body (-> js/d3 (.select "body")))
@@ -24,35 +23,6 @@
              :color "#2ca02c"
              :values (for [x (range 100)]
                        {:x x :y (.cos js/Math (/ x 10))})}]))
-
-
-; (defn nv-example
-;   []
-;   (let [svg (-> body
-;                 (.append "svg")
-;                 (.attr "width" 300)
-;                 (.attr "height" 300))]
-;     (.addGraph nv
-;                (fn []
-;                  (let [chart (-> nv.models
-;                                  (.lineChart)
-;                                  (.margin #js {:left 100})
-;                                  (.useInteractiveGuideline true)
-;                                  (.transitionDuration 350)
-;                                  (.showLegend true)
-;                                  (.showYAxis true)
-;                                  (.showYAxis true))]
-;                    (-> (.-xAxis chart)
-;                        (.axisLabel "Time (ms)")
-;                        (.tickFormat (.format d3 ",r")))
-;                    (-> (.-yAxis chart)
-;                        (.axisLabel "Voltage (v)")
-;                        (.tickFormat (.format d3 ".02f")))
-;                    ; render
-;                    (-> svg
-;                        (.datum (sin-cos))
-;                        (.call chart))
-;                    chart)))))
 
 
 (defn dimple-example
@@ -118,7 +88,6 @@
   []
   (let []
     (log d3)
-    ; (log nv)
     (log dimple)
     (log rickshaw)
     (rickshaw-example)))
