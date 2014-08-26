@@ -107,7 +107,7 @@
     (log rickshaw)
     (let [graph (epoch-example)]
       (go-loop []
-        (.push graph (clj->js [{:time (-> (js/Date.) (.getTime))
+        (.push graph (clj->js [{:time (/ (-> (js/Date.) (.getTime)) 1000)
                                 :y (random-num)}]))
         (<! (async/timeout 1000))
         (recur)))))
