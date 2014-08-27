@@ -45,20 +45,6 @@
           (.draw myChart 1000))))))
 
 
-(defn influxdb-stream
-  []
-  (let [influxdb (influxdb/connect {:database "d4"})
-        stream (influxdb/create-stream influxdb "sample"
-                                       :initial-backfill "30m"
-                                       :poll-interval 5000)]
-    (influxdb/generate-values influxdb "sample")
-    (go-loop []
-      (let [values (<! stream)]
-        (print values)
-        (log values)
-        (recur)))))
-
-
 (defn rickshaw-example
   []
   (let [chart-element (.getElementById js/document "chart")
@@ -89,8 +75,8 @@
   []
   (let [chart-elem ($ :#chart)
         data (clj->js [{:label "Series 1"
-                        :values [{:time 1370044800 :y 78}
-                                 {:time 1370044801 :y 98}]}])]
+                        :values [{:time (/ (-> (js/Date.) (.getTime)) 1000)
+                                  :y 0}]}])]
     (doto chart-elem
       (.width "800px")
       (.height "350px"))
@@ -101,16 +87,22 @@
 
 (defn main
   []
-  (let []
+  (let [ep-graph (epoch-example)
+        influxdb (influxdb/connect :database "d4")
+        f (fn [series-data]
+            (let [points (get (first series-data) "points")
+                  ep-points (clj->js (map (fn [point]
+                                            {:time (/ (get point "time") 1000)
+                                             :y (get point "value")})
+                                          points))]
+              (doall (for [p ep-points]
+                       (.push ep-graph (array p))))))]
     (log d3)
     (log dimple)
     (log rickshaw)
-    (let [graph (epoch-example)]
-      (go-loop []
-        (.push graph (clj->js [{:time (/ (-> (js/Date.) (.getTime)) 1000)
-                                :y (random-num)}]))
-        (<! (async/timeout 1000))
-        (recur)))))
+    (log influxdb)
+    (influxdb/generate-values influxdb "sample" :interval 2000)
+    (influxdb/influxdb-stream influxdb "sample" f :poll-interval 6000)))
 
 
 (set! (.-onload js/window) main)

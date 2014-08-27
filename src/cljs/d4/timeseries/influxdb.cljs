@@ -11,7 +11,7 @@
 
 (defn connect
   "Create a connection to influxdb db"
-  [{:keys [hostname port username password database]
+  [& {:keys [hostname port username password database]
     :or {hostname "localhost" port 8086 username "root" password "root" database ""}}]
   (InfluxDB. #js {:host hostname
                   :port port
@@ -76,6 +76,20 @@
                            (<! (timeout poll-interval))
                            (recur next-time-cond))))))
     c))
+
+
+(defn influxdb-stream
+  [influxdb series f & {:keys [poll-interval initial-backfill]
+                        :or {poll-interval 2000 initial-backfill "30m"}}]
+  (let [stream (create-stream influxdb series
+                              :initial-backfill initial-backfill
+                              :poll-interval poll-interval)]
+    (go-loop []
+      (let [values (<! stream)]
+        (when (some? values)
+          (when (seq values)
+            (f (js->clj values)))
+          (recur))))))
 
 
 (defn write-point
