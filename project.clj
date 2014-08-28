@@ -23,15 +23,15 @@
   :dependencies [[compojure "1.1.8" :exclusions [ring/ring-core]]
                  [enlive "1.1.5"]
                  [environ "1.0.0"]
-                 [http-kit "2.1.18"]
+                 [http-kit "2.1.19"]
                  [javax.servlet/servlet-api "2.5"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2268"]
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [org.clojure/tools.namespace "0.2.5"]
                  [org.clojure/tools.nrepl "0.2.4"]
-                 [ring "1.3.0"]
-                 [ring/ring-devel "1.3.0"]]
+                 [ring "1.3.1"]
+                 [ring/ring-devel "1.3.1"]]
 
   :profiles {
     :dev
