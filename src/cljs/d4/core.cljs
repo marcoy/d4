@@ -12,6 +12,7 @@
 (defonce dimple js/dimple)
 (defonce rickshaw js/Rickshaw)
 (defonce body (-> js/d3 (.select "body")))
+(def graph nil)
 
 
 (defn sin-cos
@@ -75,8 +76,7 @@
   []
   (let [chart-elem ($ :#chart)
         data (clj->js [{:label "Series 1"
-                        :values [{:time (/ (-> (js/Date.) (.getTime)) 1000)
-                                  :y 0}]}])]
+                        :values [{:time (/ (-> (js/Date.) (.getTime)) 1000)}]}])]
     (doto chart-elem
       (.width "800px")
       (.height "350px"))
@@ -100,7 +100,7 @@
     (log d3)
     (log dimple)
     (log rickshaw)
-    (log influxdb)
+    (set! graph ep-graph)
     (influxdb/generate-values influxdb "sample" :interval 2000)
     (influxdb/influxdb-stream influxdb "sample" f :poll-interval 6000)))
 
