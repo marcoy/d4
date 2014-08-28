@@ -2,7 +2,7 @@
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [log random-num]])
+            [d4.utils :refer [log random-num by-id]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
@@ -60,20 +60,18 @@
 
 (defn rickshaw-example
   []
-  (let [chart-element (.getElementById js/document "chart")
+  (let [chart-element (by-id "chart")
         y-axis-element (.getElementById js/document "y-axis")
-        data (clj->js (for [x (range 3)] {:x x :y (random-num)}))
+        data (clj->js [])
         graph-props (clj->js {:element chart-element
                               :width 580
                               :length 250
                               :series [{:color "steelblue"
                                         :data data}]})
         graph (rickshaw.Graph. graph-props)
-        x-axis (rickshaw.Graph.Axis.Time. #js {:graph graph})
-        y-axis (rickshaw.Graph.Axis.Y. #js {:graph graph
-                                            :orientation "left"
-                                            :tickFormat (.-formatKMBT rickshaw.Fixtures.Number)
-                                            :element y-axis-element})]
+        x-axis (rickshaw.Graph.Axis.Time. (clj->js {:graph graph}))
+        y-axis (rickshaw.Graph.Axis.Y. (clj->js {:graph graph
+                                                 :tickFormat (.-formatKMBT rickshaw.Fixtures.Number)}))]
     (.render graph)
     (go-loop [n 3]
       (.push data (clj->js {:x n :y (random-num)}))
