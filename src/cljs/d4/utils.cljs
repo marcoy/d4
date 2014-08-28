@@ -12,6 +12,11 @@
   (.floor js/Math (+ (* (.random js/Math) 100) 1)))
 
 
+(defn by-id
+  [elem-id]
+  (.getElementById js/document elem-id))
+
+
 (defn tc
   "Helper function to test brepl connection"
   []
