@@ -44,20 +44,6 @@
           (.draw myChart 1000))))))
 
 
-(defn influxdb-stream
-  []
-  (let [influxdb (influxdb/connect {:database "d4"})
-        stream (influxdb/create-stream influxdb "sample"
-                                       :initial-backfill "30m"
-                                       :poll-interval 5000)]
-    (influxdb/generate-values influxdb "sample")
-    (go-loop []
-      (let [values (<! stream)]
-        (print values)
-        (log values)
-        (recur)))))
-
-
 (defn rickshaw-example
   []
   (let [chart-element (by-id "chart")
