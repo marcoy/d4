@@ -9,8 +9,9 @@
 
 (defonce d3 js/d3)
 (defonce dimple js/dimple)
-(defonce rickshaw js/Rickshaw)
+(defonce Rickshaw js/Rickshaw)
 (defonce body (-> js/d3 (.select "body")))
+(def graph nil)
 
 
 (defn sin-cos
@@ -54,26 +55,31 @@
                               :length 250
                               :series [{:color "steelblue"
                                         :data data}]})
-        graph (rickshaw.Graph. graph-props)
-        x-axis (rickshaw.Graph.Axis.Time. (clj->js {:graph graph}))
-        y-axis (rickshaw.Graph.Axis.Y. (clj->js {:graph graph
-                                                 :tickFormat (.-formatKMBT rickshaw.Fixtures.Number)}))]
-    (.render graph)
+        rs-graph (Rickshaw.Graph. graph-props)
+        x-axis (Rickshaw.Graph.Axis.Time. (clj->js {:graph rs-graph}))
+        y-axis (Rickshaw.Graph.Axis.Y. (clj->js {:graph rs-graph
+                                                 :tickFormat (.-formatKMBT Rickshaw.Fixtures.Number)}))]
+    (set! graph rs-graph)
+    (log rs-graph)
+    (.render rs-graph)
+    (.render x-axis)
+    (.render y-axis)
     (go-loop [n 3]
       (.push data (clj->js {:x n :y (random-num)}))
       (when (> n 20)
         (.shift data))
-      (.update graph)
+      (.update rs-graph)
       (<! (async/timeout 2000))
       (recur (inc n)))))
 
 
 (defn main
   []
-  (let []
+  (let [series-data (clj->js [[] [] [] []])
+        random (Rickshaw.Fixtures.RandomData. 150)]
     (log d3)
     (log dimple)
-    (log rickshaw)
+    (log Rickshaw)
     (rickshaw-example)))
 
 
