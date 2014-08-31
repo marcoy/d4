@@ -17,6 +17,10 @@
   (.getElementById js/document elem-id))
 
 
+(defn current-millis []
+  (/ (.getTime (js/Date.)) 1000))
+
+
 (defn tc
   "Helper function to test brepl connection"
   []

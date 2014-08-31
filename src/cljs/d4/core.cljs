@@ -1,15 +1,15 @@
 (ns d4.core
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
+            [d4.graph.rickshaw :refer [Rickshaw] :as rickshaw]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [log random-num by-id]])
+            [d4.utils :refer [by-id current-millis log random-num]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
 (defonce d3 js/d3)
 (defonce dimple js/dimple)
-(defonce Rickshaw js/Rickshaw)
 (defonce body (-> js/d3 (.select "body")))
 (def graph nil)
 
@@ -48,37 +48,54 @@
 (defn rickshaw-example
   []
   (let [chart-element (by-id "chart")
-        y-axis-element (.getElementById js/document "y-axis")
         data (clj->js [])
+        fixed-series (Rickshaw.Series.FixedDuration.
+                       (array)
+                       js/undefined
+                       (clj->js
+                         {:timeInterval 10
+                          :maxDataPoints 100}))
         graph-props (clj->js {:element chart-element
-                              :width 580
-                              :length 250
-                              :series [{:color "steelblue"
-                                        :data data}]})
+                              :width 900
+                              :length 500
+                              :preserve true
+                              :stroke true
+                              ; :series [{:color "steelblue"
+                              ;           :data data}]
+                              :renderer "line"
+                              :series fixed-series})
         rs-graph (Rickshaw.Graph. graph-props)
-        x-axis (Rickshaw.Graph.Axis.Time. (clj->js {:graph rs-graph}))
+        x-axis (Rickshaw.Graph.Axis.Time. (js-obj "graph" rs-graph
+                                                  "timeFixture" (Rickshaw.Fixtures.Time.Local.)))
         y-axis (Rickshaw.Graph.Axis.Y. (clj->js {:graph rs-graph
-                                                 :tickFormat (.-formatKMBT Rickshaw.Fixtures.Number)}))]
+                                                 :tickFormat (.-formatKMBT Rickshaw.Fixtures.Number)}))
+        hover (Rickshaw.Graph.HoverDetail. (js-obj "graph" rs-graph))]
     (set! graph rs-graph)
     (log rs-graph)
-    (.render rs-graph)
     (.render x-axis)
     (.render y-axis)
-    (go-loop [n 3]
-      (.push data (clj->js {:x n :y (random-num)}))
-      (when (> n 20)
-        (.shift data))
-      (.update rs-graph)
-      (<! (async/timeout 2000))
-      (recur (inc n)))))
+    (.render rs-graph)
+    (go-loop [n 0]
+      (let [series fixed-series
+            r-num (random-num)
+            millis (current-millis)]
+        ; (log (str "Num: " r-num ". Millis: " millis))
+        (.addData series (js-obj "foo" r-num) millis)
+        (.update rs-graph)
+        (<! (async/timeout 3000))
+        (recur (inc n))))))
 
 
 (defn main
   []
-  (let [series-data (clj->js [[] [] [] []])
-        random (Rickshaw.Fixtures.RandomData. 150)]
-    (log d3)
-    (log dimple)
+  (let [series-data (clj->js [[] []])
+        random (Rickshaw.Fixtures.RandomData. 150)
+        series (Rickshaw.Series.FixedDuration. (array)
+                                               js/undefined
+                                               (clj->js
+                                                 {:timeInterval 250
+                                                  :maxDataPoints 100
+                                                  :timeBase (/ (.getTime (js/Date.)) 1000)}))]
     (log Rickshaw)
     (rickshaw-example)))
 

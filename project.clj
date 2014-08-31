@@ -29,6 +29,7 @@
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2268"]
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
+                 [org.clojure/core.match "0.2.2"]
                  [org.clojure/tools.namespace "0.2.5"]
                  [org.clojure/tools.nrepl "0.2.4"]
                  [ring "1.3.1"]
