@@ -86,6 +86,29 @@
         (recur (inc n))))))
 
 
+(defn dygraph-example
+  []
+  (let [data (array (array (js/Date.) 0))
+        dy-graph (js/Dygraph. (by-id "chart")
+                              data
+                              (clj->js
+                                {:width 900
+                                 :height 500
+                                 :title "Dynamic Random Data"
+                                 :labels ["Time" "Random"]}))]
+    (set! graph dy-graph)
+    (log dy-graph)
+    (go-loop [n 0]
+      (let [new-data (array (js/Date.) (random-num))]
+        ; (log new-data)
+        (.push data new-data)
+        (if (> (count data) 19)
+          (.shift data))
+        (.updateOptions dy-graph (js-obj "file" data))
+        (<! (async/timeout 2000))
+        (recur (inc n))))))
+
+
 (defn main
   []
   (let [series-data (clj->js [[] []])
@@ -96,8 +119,7 @@
                                                  {:timeInterval 250
                                                   :maxDataPoints 100
                                                   :timeBase (/ (.getTime (js/Date.)) 1000)}))]
-    (log Rickshaw)
-    (rickshaw-example)))
+    (dygraph-example)))
 
 
 (set! (.-onload js/window) main)
