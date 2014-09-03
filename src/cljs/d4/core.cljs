@@ -2,6 +2,7 @@
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
             [d4.graph.rickshaw :refer [Rickshaw] :as rickshaw]
+            [d4.graph.dygraph :as dy]
             [d4.timeseries.influxdb :as influxdb]
             [d4.utils :refer [by-id current-millis log random-num]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
@@ -112,14 +113,13 @@
 
 (defn main
   []
-  (let [series-data (clj->js [[] []])
-        random (Rickshaw.Fixtures.RandomData. 150)
-        series (Rickshaw.Series.FixedDuration. (array)
-                                               js/undefined
-                                               #js {:timeInterval 250
-                                                    :maxDataPoints 100
-                                                    :timeBase (/ (.getTime (js/Date.)) 1000)})]
-    (dygraph-example)))
+  (let [dyobj (-> (dy/build-dygraph "chart")
+                  (dy/set-data [[(js/Date.) 100]])
+                  (dy/set-title "My new graph")
+                  (dy/set-x-label "Time")
+                  (dy/set-y-label "Random")
+                  (dy/render))]
+    (log (clj->js dyobj))))
 
 
 (set! (.-onload js/window) main)
