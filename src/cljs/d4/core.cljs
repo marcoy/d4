@@ -114,11 +114,12 @@
 (defn main
   []
   (let [dyobj (-> (dy/build-dygraph "chart")
-                  (dy/set-data [[(js/Date.) 100]])
                   (dy/set-title "My new graph")
                   (dy/set-x-label "Time")
                   (dy/set-y-label "Random")
                   (dy/render))]
+    (dy/update-options dyobj {:title "Updated"})
+    (dy/put-point dyobj #js [(js/Date.) (random-num)])
     (log (clj->js dyobj))))
 
 

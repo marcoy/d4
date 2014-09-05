@@ -1,5 +1,5 @@
 (ns d4.graph.dygraph
-  (:require [d4.utils :refer [by-id]]))
+  (:require [d4.utils :refer [by-id log]]))
 
 
 (defprotocol DygraphConfig
@@ -7,12 +7,22 @@
   (set-title [this title])
   (set-x-label [this x-label])
   (set-y-label [this y-label])
+  (update-options [this options] "The graph has to be rendered first")
   (render [this]))
 
 
 (defprotocol DygraphData
   (put-point [this point])
   (drop-point [this]))
+
+
+(defn get-graph [dygraph]
+  (:graph dygraph))
+
+
+(defn get-dataset [dygraph]
+  (if-let [graph (get-graph dygraph)]
+    (.-file_ graph)))
 
 
 (defrecord Dygraph [config graph]
@@ -32,9 +42,19 @@
           js-dygraph (js/Dygraph. (by-id (:element conf))
                                   (if (seq (:file conf))
                                     (clj->js (:file conf))
-                                    #js [[(js/Date.) 0]])
+                                    (clj->js [[(js/Date.) 0]]))
                                   (clj->js conf))]
-      (update-in this [:graph] (constantly js-dygraph)))))
+      (update-in this [:graph] (constantly js-dygraph))))
+  (update-options [this options]
+    (if-let [dygraph (:graph this)]
+      (.updateOptions dygraph (clj->js options))))
+
+  DygraphData
+  (put-point [this point]
+    (if-let [dataset (get-dataset this)]
+      (do
+        (.push dataset point)
+        (update-options this #js {:file dataset})))))
 
 
 (defn build-dygraph
