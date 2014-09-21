@@ -1,5 +1,6 @@
 (ns d4.repl
   (:require [clojure.core.async :as async]
+            [clojure.repl :refer :all]
             [clojure.tools.namespace.repl :refer [refresh]]
             [net.cgrand.enlive-html :as enlive]
             [net.cgrand.reload :refer [auto-reload]]

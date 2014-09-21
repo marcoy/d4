@@ -3,7 +3,8 @@
             [cljs.core.async :as async]
             [d4.graph.rickshaw :refer [Rickshaw] :as rickshaw]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [by-id current-millis log random-num]])
+            [d4.utils :refer [by-id current-millis log random-num]]
+            [jayq.core :refer [$ css html]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
@@ -86,18 +87,21 @@
         (recur (inc n))))))
 
 
-(defn main
-  []
-  (let [series-data (clj->js [[] []])
-        random (Rickshaw.Fixtures.RandomData. 150)
-        series (Rickshaw.Series.FixedDuration. (array)
-                                               js/undefined
-                                               (clj->js
-                                                 {:timeInterval 250
-                                                  :maxDataPoints 100
-                                                  :timeBase (/ (.getTime (js/Date.)) 1000)}))]
-    (log Rickshaw)
-    (rickshaw-example)))
+(defn highcharts-example []
+  (let [container ($ "#chart_container")
+        chart-type {:chart {:type "bar"}}
+        title {:tilte {:text "Fruit Consumption"}}
+        x-axis {:xAxis {:categories ["Apples" "Bananas" "Oranges"]}}
+        y-axis {:yAxis {:title  {:text "Fruit eaten"}}}
+        series {:series [{:name "Jane" :data [1 2 4]}
+                         {:name "John" :data [5 7 3]}]}
+        config (merge chart-type title x-axis y-axis series)]
+    (log (clj->js config))
+    (.highcharts container (clj->js config))))
+
+
+(defn main []
+  (highcharts-example))
 
 
 (set! (.-onload js/window) main)
