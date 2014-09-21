@@ -20,7 +20,7 @@
 
   :test-paths ["test/clj"]
 
-  :dependencies [[compojure "1.1.8" :exclusions [ring/ring-core]]
+  :dependencies [[compojure "1.1.9" :exclusions [ring/ring-core]]
                  [enlive "1.1.5"]
                  [environ "1.0.0"]
                  [http-kit "2.1.19"]
@@ -30,8 +30,8 @@
                  [org.clojure/clojurescript "0.0-2268"]
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [org.clojure/core.match "0.2.2"]
-                 [org.clojure/tools.namespace "0.2.5"]
-                 [org.clojure/tools.nrepl "0.2.4"]
+                 [org.clojure/tools.namespace "0.2.7"]
+                 [org.clojure/tools.nrepl "0.2.6"]
                  [ring "1.3.1"]
                  [ring/ring-devel "1.3.1"]]
 
