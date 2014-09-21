@@ -1,6 +1,7 @@
 (ns d4.core
   (:require [clojure.browser.repl]
             [cljs.core.async :as async]
+            [d4.graph.highcharts :as hc]
             [d4.graph.rickshaw :refer [Rickshaw] :as rickshaw]
             [d4.timeseries.influxdb :as influxdb]
             [d4.utils :refer [by-id current-millis log random-num]]
@@ -87,6 +88,16 @@
         (recur (inc n))))))
 
 
+(defn sine [n]
+  (for [x (range n)]
+    [x (.sin js/Math (/ x 10))]))
+
+
+(defn consine [n]
+  (for [x (range n)]
+    [x (.cos js/Math (/ x 10))]))
+
+
 (defn highcharts-example []
   (let [container ($ "#chart_container")
         chart-type {:chart {:type "line"}}
@@ -96,12 +107,19 @@
         series {:series [{:name "Jane" :data [1 2 4] :type "line"}
                          {:name "John" :data [5 7 3] :type "line"}]}
         config (merge chart-type title x-axis y-axis series)]
-    (log (clj->js config))
-    (.highcharts container (clj->js config))))
+    ; (.highcharts container (clj->js config))
+    (-> (hc/highcharts "#chart_container")
+        (hc/title :text "Sine and Cosine")
+        (hc/chart :type "line"
+                  :zoomType "x")
+        (hc/series [{:data (sine 200) :name "sine" :type "column"}
+                    {:data (consine 200) :name "cosine"}]))))
 
 
 (defn main []
-  (highcharts-example))
+  (let [chart (highcharts-example)]
+    (log chart)
+    (log (hc/render chart))))
 
 
 (set! (.-onload js/window) main)

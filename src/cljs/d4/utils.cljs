@@ -3,7 +3,7 @@
 
 (defn log
   [x]
-  (.log js/console x))
+  (.log js/console (clj->js x)))
 
 
 (defn random-num
