@@ -89,12 +89,12 @@
 
 (defn highcharts-example []
   (let [container ($ "#chart_container")
-        chart-type {:chart {:type "bar"}}
+        chart-type {:chart {:type "line"}}
         title {:tilte {:text "Fruit Consumption"}}
         x-axis {:xAxis {:categories ["Apples" "Bananas" "Oranges"]}}
         y-axis {:yAxis {:title  {:text "Fruit eaten"}}}
-        series {:series [{:name "Jane" :data [1 2 4]}
-                         {:name "John" :data [5 7 3]}]}
+        series {:series [{:name "Jane" :data [1 2 4] :type "line"}
+                         {:name "John" :data [5 7 3] :type "line"}]}
         config (merge chart-type title x-axis y-axis series)]
     (log (clj->js config))
     (.highcharts container (clj->js config))))
