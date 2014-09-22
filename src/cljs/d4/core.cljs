@@ -116,10 +116,24 @@
                     {:data (consine 200) :name "cosine"}]))))
 
 
+(defn dynamic-highcharts []
+  (let [chart (-> (hc/highcharts "#chart_container")
+                  (hc/title :text "Dynamic Chart")
+                  (hc/series [{:data [] :name "first"}
+                              ; {:data [4 5 6] :name "second"}
+                              ]))
+        hc-chart (hc/render chart)]
+    hc-chart))
+
+
 (defn main []
-  (let [chart (highcharts-example)]
-    (log chart)
-    (log (hc/render chart))))
+  (let [hc-chart (dynamic-highcharts)
+        first-series (hc/get-series hc-chart "first")]
+    (log first-series)
+    (go-loop []
+      (<! (async/timeout 1000))
+      (hc/push-point first-series (random-num) :max-points 20)
+      (recur))))
 
 
 (set! (.-onload js/window) main)

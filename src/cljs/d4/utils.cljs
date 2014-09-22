@@ -3,6 +3,11 @@
 
 (defn log
   [x]
+  (.log js/console x))
+
+
+(defn clj-log
+  [x]
   (.log js/console (clj->js x)))
 
 
