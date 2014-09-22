@@ -119,6 +119,7 @@
 (defn dynamic-highcharts []
   (let [chart (-> (hc/highcharts "#chart_container")
                   (hc/title :text "Dynamic Chart")
+                  (hc/x-axis :type "datetime")
                   (hc/series [{:data [] :name "first"}
                               ; {:data [4 5 6] :name "second"}
                               ]))
@@ -132,7 +133,7 @@
     (log first-series)
     (go-loop []
       (<! (async/timeout 1000))
-      ; (hc/push-point first-series (random-num) :max-points 20)
+      (hc/push-point first-series [(.getTime (js/Date.)) (random-num)] :max-points 20)
       (recur))))
 
 

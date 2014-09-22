@@ -55,9 +55,10 @@
 
 (defn push-point
   [series point & {:keys [max-points]}]
-  (let [points (.-data series)]
+  (let [points (.-data series)
+        js-point (clj->js point)]
     (if (some? max-points)
       (if (< (count points) max-points)
-        (.addPoint series point true false)
-        (.addPoint series point true true))
-      (.addPoint series point true false))))
+        (.addPoint series js-point true false)
+        (.addPoint series js-point true true))
+      (.addPoint series js-point true false))))
