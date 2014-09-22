@@ -132,7 +132,7 @@
     (log first-series)
     (go-loop []
       (<! (async/timeout 1000))
-      (hc/push-point first-series (random-num) :max-points 20)
+      ; (hc/push-point first-series (random-num) :max-points 20)
       (recur))))
 
 

@@ -9,12 +9,15 @@
 
 
 ;; Functions for Highcharts options
+(highcharts-opts-fn chart :chart)
 (highcharts-opts-fn x-axis :xAxis)
 (highcharts-opts-fn y-axis :yAxis)
 (highcharts-opts-fn title :title)
+(highcharts-opts-fn subtitle :subtitle)
 (highcharts-opts-fn legend :legend)
-(highcharts-opts-fn chart :chart)
 (highcharts-opts-fn tooltip :tooltip)
+(highcharts-opts-fn drilldown :drilldown)
+(highcharts-opts-fn exporting :exporting)
 
 (defn series
   [highcharts series-objs]
