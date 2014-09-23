@@ -12,7 +12,7 @@
 (defn connect
   "Create a connection to influxdb db"
   [& {:keys [hostname port username password database]
-    :or {hostname "localhost" port 8086 username "root" password "root" database ""}}]
+      :or {hostname "localhost" port 8086 username "root" password "root" database ""}}]
   (InfluxDB. #js {:host hostname
                   :port port
                   :username username

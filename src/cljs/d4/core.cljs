@@ -4,7 +4,7 @@
             [d4.graph.highcharts :as hc]
             [d4.graph.rickshaw :refer [Rickshaw] :as rickshaw]
             [d4.timeseries.influxdb :as influxdb]
-            [d4.utils :refer [by-id current-millis log random-num]]
+            [d4.utils :refer [by-id clj-log current-millis log random-num]]
             [jayq.core :refer [$ css html]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -127,14 +127,31 @@
     hc-chart))
 
 
+; [{:name ""
+;   :points [{:sequence_number
+;             :time
+;             :value}]}]
 (defn main []
-  (let [hc-chart (dynamic-highcharts)
-        first-series (hc/get-series hc-chart "first")]
-    (log first-series)
-    (go-loop []
-      (<! (async/timeout 1000))
-      (hc/push-point first-series [(.getTime (js/Date.)) (random-num)] :max-points 20)
-      (recur))))
+  (let [influxdb (influxdb/connect :database "d4")
+        hc-chart (dynamic-highcharts)
+        first-series (hc/get-series hc-chart "first")
+        ts-name "sample"]
+    (influxdb/generate-values influxdb ts-name :interval 5000)
+    (influxdb/influxdb-stream influxdb ts-name
+                              #(let [max-points 20
+                                     all-points (get (first %) "points")
+                                     points (drop (- all-points max-points) all-points)]
+                                 (doall
+                                   (map (fn [x] (clj-log [(/ (get x "time") 1000) (get x "value")]))
+                                        points))
+                                 (doall
+                                   (map (fn [x]
+                                          (hc/push-point first-series
+                                                         [(/ (get x "time") 1000) (get x "value")]
+                                                         :max-points 20))
+                                        points)))
+                              :poll-interval 1000
+                              :initial-backfill "3m")))
 
 
 (set! (.-onload js/window) main)
