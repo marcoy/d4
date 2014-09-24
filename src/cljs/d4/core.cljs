@@ -142,13 +142,10 @@
                                      all-points (get (first %) "points")
                                      points (drop (- all-points max-points) all-points)]
                                  (doall
-                                   (map (fn [x] (clj-log [(/ (get x "time") 1000) (get x "value")]))
-                                        points))
-                                 (doall
                                    (map (fn [x]
                                           (hc/push-point first-series
                                                          [(/ (get x "time") 1000) (get x "value")]
-                                                         :max-points 20))
+                                                         :max-points 10))
                                         points)))
                               :poll-interval 1000
                               :initial-backfill "3m")))

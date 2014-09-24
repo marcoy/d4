@@ -79,7 +79,7 @@
 
 
 (defn influxdb-stream
-  [influxdb series f & {:keys [poll-interval initial-backfill]
+  [influxdb series f & {:keys [poll-interval initial-backfill max-points]
                         :or {poll-interval 2000 initial-backfill "30m"}}]
   (let [stream (create-stream influxdb series
                               :initial-backfill initial-backfill
@@ -87,8 +87,11 @@
     (go-loop []
       (let [values (<! stream)]
         (when (some? values)
-          (when (seq values)
-            (f (js->clj values)))
+          (when-let [xs (seq values)]
+            (let [n (count xs)]
+              (if (and (some? max-points) (> n max-points))
+                (f (js->clj (drop (- n max-points) xs)))
+                (f (js->clj xs)))))
           (recur))))))
 
 
