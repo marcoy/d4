@@ -122,9 +122,8 @@
                   (hc/x-axis :type "datetime")
                   (hc/series [{:data [] :name "first"}
                               ; {:data [4 5 6] :name "second"}
-                              ]))
-        hc-chart (hc/render chart)]
-    hc-chart))
+                              ]))]
+    (hc/render chart)))
 
 
 ; [{:name ""
@@ -133,19 +132,19 @@
 ;             :value}]}]
 (defn main []
   (let [influxdb (influxdb/connect :database "d4")
-        hc-chart (dynamic-highcharts)
+        hc-chart (:hc-chart (dynamic-highcharts))
         first-series (hc/get-series hc-chart "first")
         ts-name "sample"]
     (influxdb/generate-values influxdb ts-name :interval 5000)
     (influxdb/influxdb-stream influxdb ts-name
-                              #(let [max-points 20
+                              #(let [max-points 10
                                      all-points (get (first %) "points")
                                      points (drop (- all-points max-points) all-points)]
                                  (doall
                                    (map (fn [x]
                                           (hc/push-point first-series
                                                          [(/ (get x "time") 1000) (get x "value")]
-                                                         :max-points 10))
+                                                         :max-points max-points))
                                         points)))
                               :poll-interval 1000
                               :initial-backfill "3m")))

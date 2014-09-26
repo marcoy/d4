@@ -5,7 +5,7 @@
 
 
 ;; Highcharts object
-(defrecord Highcharts [selector options])
+(defrecord Highcharts [selector options hc-chart])
 
 
 ;; Functions for Highcharts options
@@ -30,7 +30,7 @@
   (let [element ($ (:selector highcharts))
         options (clj->js (:options highcharts))]
     (.highcharts element options)
-    (.highcharts element)))
+    (assoc highcharts :hc-chart (.highcharts element))))
 
 
 (defn highcharts
@@ -57,8 +57,6 @@
   [series point & {:keys [max-points]}]
   (let [points (.-data series)
         js-point (clj->js point)]
-    (if (some? max-points)
-      (if (< (count points) max-points)
-        (.addPoint series js-point true false)
-        (.addPoint series js-point true true))
+    (if (and (some? max-points) (>= (count points) max-points))
+      (.addPoint series js-point true true)
       (.addPoint series js-point true false))))
